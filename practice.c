@@ -1,3 +1,4 @@
+#include "status_bits.h"
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -17,11 +18,6 @@ InputBuffer *new_input_buffer() {
   input_buffer->input_length = 0;
   return input_buffer;
 }
-typedef enum {
-  META_COMMAND_SUCCESS,
-  META_COMMAND_UNRECOGNIZED_COMMAND,
-} MetaCommandResult;
-
 MetaCommandResult do_meta_command(InputBuffer *input_buffer) {
   if (strcmp(input_buffer->buffer, ".exit") == 0) {
     exit(EXIT_SUCCESS);
@@ -29,15 +25,6 @@ MetaCommandResult do_meta_command(InputBuffer *input_buffer) {
     return META_COMMAND_UNRECOGNIZED_COMMAND;
   }
 }
-typedef enum {
-  STATEMENT_INSERT,
-  STATEMENT_SELECT,
-} StatementType;
-typedef struct {
-  StatementType type;
-} Statement;
-
-typedef enum { PREPARE_SUCCESS, PREPARE_UNRECOGNIZED_STATEMENT } PrepareResult;
 PrepareResult prepare_result(InputBuffer *input_buffer, Statement *statement) {
   if (strncmp(input_buffer->buffer, "insert", 6) == 0) {
     statement->type = STATEMENT_INSERT;
@@ -50,12 +37,13 @@ PrepareResult prepare_result(InputBuffer *input_buffer, Statement *statement) {
   return PREPARE_UNRECOGNIZED_STATEMENT;
 }
 void execute_statement(Statement *statement) {
+  printf("\n statement type %d \n", statement->type);
   switch (statement->type) {
   case (STATEMENT_SELECT):
     puts("Select statement running.");
     break;
   case (STATEMENT_INSERT):
-    puts("insert statement running.");
+    puts("Insert statement running.");
     break;
   }
 }
@@ -91,7 +79,7 @@ int main(int argc, char *argv[]) {
     case PREPARE_SUCCESS:
       break;
     case PREPARE_UNRECOGNIZED_STATEMENT:
-      puts("Unrecongnized statement");
+      printf("Unrecongnized statement");
       continue;
     }
     // executing statement
